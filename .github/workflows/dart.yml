@@ -1,0 +1,29 @@
+name: Dart
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    container:
+      image:  google/dart:latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Print Dart SDK version
+        run: dart --version
+      - name: Install dependencies
+        run: dart pub get
+      - name: Analyze project source
+        run: dart analyze
+  test:
+    runs-on: ubuntu-latest
+    container: 
+      image: google/dart:latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Print Flutter version
+        run: flutter --version
+      - name: Install dependencies
+        run: flutter pub get
+      - name: Run tests
+        run: flutter test
