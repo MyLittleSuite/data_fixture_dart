@@ -10,11 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Print Dart SDK version
-        run: dart --version
+        run: flutter --version
       - name: Install dependencies
-        run: dart pub get
+        run: flutter pub get
       - name: Analyze project source
-        run: dart analyze
+        run: flutter analyze
   test:
     runs-on: ubuntu-latest
     container: 
