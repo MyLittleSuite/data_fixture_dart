@@ -3,20 +3,17 @@ import 'package:data_fixture_dart/definitions/fixture_definition.dart';
 import 'package:data_fixture_dart/definitions/json_fixture_definition.dart';
 import 'package:data_fixture_dart/makers/json_fixture_maker.dart';
 import 'package:data_fixture_dart/misc/FixtureTuple.dart';
-import 'package:meta/meta.dart';
 
 /// This class defines the rules to create a JSON Object from a model.
 abstract class JsonFixtureFactory<Model> extends FixtureFactory<Model>
     implements JsonFixtureMaker<Model> {
-
   /// The default JSON model definition.
   JsonFixtureDefinition<Model> jsonDefinition();
 
   /// Create a new JSON model fixture definition.
-  @protected
-  JsonFixtureDefinition<Model> defineJson({
+  JsonFixtureDefinition<Model> defineJson(
+    Map<String, dynamic> Function(Model) jsonDefinition, {
     FixtureDefinition<Model> modelDefinition,
-    @required Map<String, dynamic> Function(Model) jsonDefinition,
   }) {
     assert(jsonDefinition != null);
 
@@ -27,7 +24,6 @@ abstract class JsonFixtureFactory<Model> extends FixtureFactory<Model>
   }
 
   /// Edit the default JSON fixture definition.
-  @protected
   JsonFixtureDefinition<Model> redefineJson(
           Model Function(Model) redefinition) =>
       JsonFixtureDefinition(

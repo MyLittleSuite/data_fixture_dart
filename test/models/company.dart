@@ -31,7 +31,7 @@ class _CompanyFixtureFactory extends JsonFixtureFactory<Company> {
 
   @override
   JsonFixtureDefinition<Company> jsonDefinition() => defineJson(
-        jsonDefinition: (company) => {
+        (company) => {
           "name": company.name,
           "employees":
               PersonFixture.factory().makeJsonArrayFromMany(company.employees),

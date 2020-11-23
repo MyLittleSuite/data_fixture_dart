@@ -1,7 +1,6 @@
 name: data_fixture_dart
 description: Creation of data model easily, with no headache.
 version: 1.0.0
-author: andreadelfante
 homepage: https://github.com/andreadelfante/data_fixture_dart
 
 environment:
@@ -11,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  faker: any
+  faker: ">=1.2.0 <2.0.0"
 
 dev_dependencies:
   flutter_test:

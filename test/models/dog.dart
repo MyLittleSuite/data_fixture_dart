@@ -29,7 +29,7 @@ class _DogFixtureFactory extends JsonFixtureFactory<Dog> {
 
   @override
   JsonFixtureDefinition<Dog> jsonDefinition() => defineJson(
-        jsonDefinition: (dog) => {
+        (dog) => {
           "name": dog.name,
           "age": dog.age,
         },

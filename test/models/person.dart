@@ -42,7 +42,7 @@ class _PersonFixtureFactory extends JsonFixtureFactory<Person> {
 
   @override
   JsonFixtureDefinition<Person> jsonDefinition() => defineJson(
-        jsonDefinition: (person) => {
+        (person) => {
           "firstName": person.firstName,
           "lastName": person.lastName,
           "birthday": person.birthday?.toIso8601String(),

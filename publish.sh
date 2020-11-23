@@ -1,4 +1,9 @@
+#!/bin/sh
+
 flutter pub publish --dry-run
 
-#todo: write README.md
-#todo: write this publish script w/ push tag and publish push
+VERSION=$(grep 'version:' pubspec.yaml | awk '{ print $2 }' | cut -d '+' -f 1 | tr -d '\n')
+git tag -a "$VERSION"
+git push origin --tags
+
+flutter pub publish
