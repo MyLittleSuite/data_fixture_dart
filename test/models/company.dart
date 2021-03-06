@@ -1,12 +1,15 @@
 import 'package:data_fixture_dart/data_fixture_dart.dart';
 
-import 'person.dart';
+import 'person.dart' as model;
 
 class Company {
   final String name;
-  final List<Person> employees;
+  final List<model.Person> employees;
 
-  Company({this.name, this.employees});
+  Company({
+    required this.name,
+    required this.employees,
+  });
 }
 
 extension CompanyFixture on Company {
@@ -18,7 +21,7 @@ class _CompanyFixtureFactory extends JsonFixtureFactory<Company> {
   FixtureDefinition<Company> definition() => define(
         (faker) => Company(
           name: faker.company.name(),
-          employees: PersonFixture.factory().makeMany(5),
+          employees: model.PersonFixture.factory().makeMany(5),
         ),
       );
 
@@ -33,8 +36,8 @@ class _CompanyFixtureFactory extends JsonFixtureFactory<Company> {
   JsonFixtureDefinition<Company> jsonDefinition() => defineJson(
         (company) => {
           "name": company.name,
-          "employees":
-              PersonFixture.factory().makeJsonArrayFromMany(company.employees),
+          "employees": model.PersonFixture.factory()
+              .makeJsonArrayFromMany(company.employees),
         },
       );
 }

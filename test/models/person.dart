@@ -5,10 +5,15 @@ import 'dog.dart' show Dog, DogFixture;
 class Person {
   final String firstName;
   final String lastName;
-  final DateTime birthday;
+  final DateTime? birthday;
   final List<Dog> dogs;
 
-  Person({this.firstName, this.lastName, this.birthday, this.dogs});
+  Person({
+    required this.firstName,
+    required this.lastName,
+    this.birthday,
+    required this.dogs,
+  });
 }
 
 extension PersonFixture on Person {
@@ -27,9 +32,9 @@ class _PersonFixtureFactory extends JsonFixtureFactory<Person> {
       );
 
   JsonFixtureDefinition<Person> withFields({
-    String firstName,
-    String lastName,
-    DateTime birthday,
+    required String firstName,
+    required String lastName,
+    DateTime? birthday,
   }) =>
       redefineJson(
         (person) => Person(

@@ -1,4 +1,4 @@
-import 'package:faker/faker.dart';
+import 'package:data_fixture_dart/data_fixture_dart.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'models/company.dart';
@@ -120,9 +120,7 @@ void main() {
   });
 
   test('make many objects with associated json array', () {
-    final results = DogFixture.factory()
-        .old()
-        .makeManyWithJsonArray(3);
+    final results = DogFixture.factory().old().makeManyWithJsonArray(3);
 
     expect(results.length, equals(3));
     results.forEach((result) {
@@ -133,7 +131,10 @@ void main() {
 
   test('make many objects with associated json array with redefinition', () {
     final results = PersonFixture.factory()
-        .withFields(firstName: expectedString1, lastName: expectedString2, birthday: expectedDate1)
+        .withFields(
+            firstName: expectedString1,
+            lastName: expectedString2,
+            birthday: expectedDate1)
         .makeManyWithJsonArray(3);
 
     expect(results.length, equals(3));
