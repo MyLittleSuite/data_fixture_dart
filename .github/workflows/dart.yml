@@ -1,25 +1,17 @@
-name: Dart
+name: Dart CI
 
-on: [push]
+on: push
 
 jobs:
-  lint:
+  build:
     runs-on: ubuntu-latest
     container:
-      image: cirrusci/flutter:stable
+      image: leoafarias/fvm:latest
     steps:
       - uses: actions/checkout@v2
+      - name: Install Flutter
+        run: fvm install
       - name: Install dependencies
-        run: flutter pub get
-      - name: Analyze project source
-        run: flutter analyze
-  test:
-    runs-on: ubuntu-latest
-    container: 
-      image: cirrusci/flutter:stable
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install dependencies
-        run: flutter pub get
+        run: fvm flutter pub get
       - name: Run tests
-        run: flutter test
+        run: fvm flutter test

@@ -2,7 +2,7 @@ import 'package:data_fixture_dart/data_fixture_dart.dart';
 import 'package:data_fixture_dart/definitions/fixture_definition.dart';
 import 'package:data_fixture_dart/definitions/json_fixture_definition.dart';
 import 'package:data_fixture_dart/makers/json_fixture_maker.dart';
-import 'package:data_fixture_dart/misc/FixtureTuple.dart';
+import 'package:data_fixture_dart/misc/fixture_tuple.dart';
 
 /// This class defines the rules to create a JSON Object from a model.
 abstract class JsonFixtureFactory<Model> extends FixtureFactory<Model>
@@ -13,15 +13,12 @@ abstract class JsonFixtureFactory<Model> extends FixtureFactory<Model>
   /// Create a new JSON model fixture definition.
   JsonFixtureDefinition<Model> defineJson(
     Map<String, dynamic> Function(Model) jsonDefinition, {
-    FixtureDefinition<Model> modelDefinition,
-  }) {
-    assert(jsonDefinition != null);
-
-    return JsonFixtureDefinition(
-      modelDefinition ?? definition(),
-      jsonDefinition,
-    );
-  }
+    FixtureDefinition<Model>? modelDefinition,
+  }) =>
+      JsonFixtureDefinition(
+        modelDefinition ?? definition(),
+        jsonDefinition,
+      );
 
   /// Edit the default JSON fixture definition.
   JsonFixtureDefinition<Model> redefineJson(
@@ -32,12 +29,21 @@ abstract class JsonFixtureFactory<Model> extends FixtureFactory<Model>
       );
 
   @override
-  List<Map<String, dynamic>> makeJsonArray(int number) =>
-      jsonDefinition().makeJsonArray(number);
+  List<Map<String, dynamic>> makeJsonArray(
+    int number, {
+    bool growableList = false,
+  }) =>
+      jsonDefinition().makeJsonArray(number, growableList: growableList);
 
   @override
-  List<Map<String, dynamic>> makeJsonArrayFromMany(List<Model> objects) =>
-      jsonDefinition().makeJsonArrayFromMany(objects);
+  List<Map<String, dynamic>> makeJsonArrayFromMany(
+    List<Model> objects, {
+    bool growableList = false,
+  }) =>
+      jsonDefinition().makeJsonArrayFromMany(
+        objects,
+        growableList: growableList,
+      );
 
   @override
   Map<String, dynamic> makeJsonObject() => jsonDefinition().makeJsonObject();
@@ -47,8 +53,14 @@ abstract class JsonFixtureFactory<Model> extends FixtureFactory<Model>
       jsonDefinition().makeJsonObjectFromSingle(object);
 
   @override
-  List<FixtureTuple<Model>> makeManyWithJsonArray(int number) =>
-      jsonDefinition().makeManyWithJsonArray(number);
+  List<FixtureTuple<Model>> makeManyWithJsonArray(
+    int number, {
+    bool growableList = false,
+  }) =>
+      jsonDefinition().makeManyWithJsonArray(
+        number,
+        growableList: growableList,
+      );
 
   @override
   FixtureTuple<Model> makeSingleWithJsonObject() =>

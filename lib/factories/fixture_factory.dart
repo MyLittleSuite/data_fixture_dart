@@ -19,7 +19,8 @@ abstract class FixtureFactory<Model> implements FixtureMaker<Model> {
       });
 
   @override
-  List<Model> makeMany(int number) => definition().makeMany(number);
+  List<Model> makeMany(int number, {bool growableList = false}) =>
+      definition().makeMany(number, growableList: growableList);
 
   @override
   Model makeSingle() => definition().makeSingle();

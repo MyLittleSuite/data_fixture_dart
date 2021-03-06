@@ -4,7 +4,10 @@ class Dog {
   final String name;
   final int age;
 
-  Dog({this.name, this.age});
+  Dog({
+    required this.name,
+    required this.age,
+  });
 }
 
 extension DogFixture on Dog {
