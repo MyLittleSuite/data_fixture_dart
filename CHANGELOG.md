@@ -1,3 +1,7 @@
+## 2.1.0
+* Refactor typedef builders.
+* Now FixtureDefinition and JsonFixtureDefinitionBuilder are abstract types.
+
 ## 2.0.0
 Migration to null safety (Flutter 2.0.0)
 
