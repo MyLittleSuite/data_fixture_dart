@@ -5,7 +5,7 @@ import 'package:faker/faker.dart';
 typedef FixtureDefinitionBuilder<Model> = Model Function(Faker faker);
 
 /// This defines a fixture to generate the model.
-class FixtureDefinition<Model> implements FixtureMaker<Model> {
+abstract class FixtureDefinition<Model> implements FixtureMaker<Model> {
   final FixtureDefinitionBuilder<Model> definition;
   final Faker faker = Faker();
 

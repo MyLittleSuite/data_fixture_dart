@@ -1,6 +1,8 @@
 import 'package:data_fixture_dart/definitions/fixture_definition.dart';
 import 'package:data_fixture_dart/makers/fixture_maker.dart';
-import 'package:faker/faker.dart';
+
+/// Type alias for fixture redefinition.
+typedef FixtureRedefinitionBuilder<Model> = Model Function(Model object);
 
 /// This abstract class specifies the definitions to create an object.
 abstract class FixtureFactory<Model> implements FixtureMaker<Model> {
@@ -8,12 +10,16 @@ abstract class FixtureFactory<Model> implements FixtureMaker<Model> {
   FixtureDefinition<Model> definition();
 
   /// Create a new model fixture definition.
-  FixtureDefinition<Model> define(Model Function(Faker) definition) =>
-      FixtureDefinition(definition);
+  FixtureDefinition<Model> define(
+    FixtureDefinitionBuilder<Model> definition,
+  ) =>
+      _FixtureDefinitionImpl(definition);
 
   /// Edit the default fixture definition.
-  FixtureDefinition<Model> redefine(Model Function(Model) redefinition) =>
-      FixtureDefinition((faker) {
+  FixtureDefinition<Model> redefine(
+    FixtureRedefinitionBuilder<Model> redefinition,
+  ) =>
+      _FixtureDefinitionImpl((faker) {
         final model = definition().definition(faker);
         return redefinition(model);
       });
@@ -24,4 +30,8 @@ abstract class FixtureFactory<Model> implements FixtureMaker<Model> {
 
   @override
   Model makeSingle() => definition().makeSingle();
+}
+
+class _FixtureDefinitionImpl<Model> extends FixtureDefinition<Model> {
+  _FixtureDefinitionImpl(definition) : super(definition);
 }

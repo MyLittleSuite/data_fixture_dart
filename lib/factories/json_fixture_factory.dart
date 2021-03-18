@@ -12,18 +12,19 @@ abstract class JsonFixtureFactory<Model> extends FixtureFactory<Model>
 
   /// Create a new JSON model fixture definition.
   JsonFixtureDefinition<Model> defineJson(
-    Map<String, dynamic> Function(Model) jsonDefinition, {
+    JsonFixtureDefinitionBuilder<Model> jsonDefinition, {
     FixtureDefinition<Model>? modelDefinition,
   }) =>
-      JsonFixtureDefinition(
+      _JsonFixtureDefinition(
         modelDefinition ?? definition(),
         jsonDefinition,
       );
 
   /// Edit the default JSON fixture definition.
   JsonFixtureDefinition<Model> redefineJson(
-          Model Function(Model) redefinition) =>
-      JsonFixtureDefinition(
+    FixtureRedefinitionBuilder<Model> redefinition,
+  ) =>
+      _JsonFixtureDefinition(
         redefine(redefinition),
         jsonDefinition().jsonDefinition,
       );
@@ -65,4 +66,11 @@ abstract class JsonFixtureFactory<Model> extends FixtureFactory<Model>
   @override
   FixtureTuple<Model> makeSingleWithJsonObject() =>
       jsonDefinition().makeSingleWithJsonObject();
+}
+
+class _JsonFixtureDefinition<Model> extends JsonFixtureDefinition<Model> {
+  _JsonFixtureDefinition(
+    FixtureDefinition<Model> fixtureDefinition,
+    JsonFixtureDefinitionBuilder<Model> jsonDefinition,
+  ) : super(fixtureDefinition, jsonDefinition);
 }

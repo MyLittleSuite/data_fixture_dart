@@ -4,10 +4,10 @@ import 'package:data_fixture_dart/misc/fixture_tuple.dart';
 
 /// Type alias for JSON fixture definition.
 typedef JsonFixtureDefinitionBuilder<Model> = Map<String, dynamic> Function(
-    Model model);
+    Model object);
 
 /// It defines a fixture to generate the model and the associated JSON.
-class JsonFixtureDefinition<Model> extends JsonFixtureMaker<Model> {
+abstract class JsonFixtureDefinition<Model> extends JsonFixtureMaker<Model> {
   final FixtureDefinition<Model> fixtureDefinition;
   final JsonFixtureDefinitionBuilder<Model> jsonDefinition;
 
