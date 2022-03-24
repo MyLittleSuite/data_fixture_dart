@@ -128,3 +128,10 @@ final JSONArray = CompanyFixture.factory.makeJsonArrayFromMany(from: companies);
 ## Contributing
 data_fixture_dart is an open source project, so feel free to contribute.
 You can open an issue for problems or suggestions, and you can propose your own fixes by opening a pull request with the changes.
+
+## Testing
+In order to test the package run this command
+
+```shell
+dart test
+```
