@@ -8,6 +8,7 @@
 Create data models easily, with no headache.
 
 ## Usage
+
 ### Basic
 1. Create a new file to define the fixture factory for a model.
 ```dart
