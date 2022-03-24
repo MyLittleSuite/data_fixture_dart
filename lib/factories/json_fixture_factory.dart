@@ -1,6 +1,4 @@
 import 'package:data_fixture_dart/data_fixture_dart.dart';
-import 'package:data_fixture_dart/definitions/fixture_definition.dart';
-import 'package:data_fixture_dart/definitions/json_fixture_definition.dart';
 import 'package:data_fixture_dart/makers/json_fixture_maker.dart';
 import 'package:data_fixture_dart/misc/fixture_tuple.dart';
 

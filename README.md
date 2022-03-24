@@ -124,10 +124,6 @@ final companies = CompanyFixture.factory.makeMany(3);
 final JSONArray = CompanyFixture.factory.makeJsonArrayFromMany(from: companies);
 ```
 
-## Developing
-This project is powered by [fvm](https://github.com/leoafarias/fvm).
-To start developing, please launch `fvm install` to install the correct Flutter version.
-
 ## Contributing
 data_fixture_dart is an open source project, so feel free to contribute.
 You can open an issue for problems or suggestions, and you can propose your own fixes by opening a pull request with the changes.
