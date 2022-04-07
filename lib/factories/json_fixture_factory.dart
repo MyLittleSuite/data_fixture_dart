@@ -20,10 +20,14 @@ abstract class JsonFixtureFactory<Model> extends FixtureFactory<Model>
 
   /// Edit the default JSON fixture definition.
   JsonFixtureDefinition<Model> redefineJson(
-    FixtureRedefinitionBuilder<Model> redefinition,
-  ) =>
+    FixtureRedefinitionBuilder<Model> redefinition, {
+    Faker? faker,
+  }) =>
       _JsonFixtureDefinition(
-        redefine(redefinition),
+        redefine(
+          redefinition,
+          faker: faker,
+        ),
         jsonDefinition().jsonDefinition,
       );
 

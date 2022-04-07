@@ -1,3 +1,7 @@
+## 2.3.0
+
+* Add option to pass custom Faker instance to `define` and/or `redefine` as an optional parameter.
+
 ## 2.2.0
 * Remove Flutter as a direct dependency. The package can now be used also in a Dart project.
 * Update unit tests to work with pure Dart
