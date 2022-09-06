@@ -1,5 +1,5 @@
 import 'package:data_fixture_dart/data_fixture_dart.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 
 import 'models/company.dart';
 import 'models/dog.dart';

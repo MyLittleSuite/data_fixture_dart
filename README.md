@@ -8,6 +8,7 @@
 Create data models easily, with no headache.
 
 ## Usage
+
 ### Basic
 1. Create a new file to define the fixture factory for a model.
 ```dart
@@ -124,10 +125,54 @@ final companies = CompanyFixture.factory.makeMany(3);
 final JSONArray = CompanyFixture.factory.makeJsonArrayFromMany(from: companies);
 ```
 
-## Developing
-This project is powered by [fvm](https://github.com/leoafarias/fvm).
-To start developing, please launch `fvm install` to install the correct Flutter version.
+### Using a custom Faker instance
+
+Sometimes you want your `Faker` to have maybe a custom `seed` or custom `provider`.
+In that case you can simply pass a custom `Faker` instance to either `define` or `redefine`
+```dart
+import 'package:data_fixture_dart/data_fixture_dart.dart';
+
+extension NewsArticleFixture on NewsArticle {
+  static _NewsArticleFactory factory() => _NewsArticleFactory();
+}
+
+class _NewsArticleFixtureFactory extends FixtureFactory<NewsArticle> {
+  @override
+  FixtureDefinition<NewsArticle> definition() => define(
+    (Faker faker) => NewsArticle(
+      title: faker.lorem.sentence(),
+      content: faker.lorem.sentences(3).join(' '),
+    ),
+    faker: Faker(
+      seed: Random().nextInt(1234567890),
+      provider: FakerDataProvider(
+        loremDataProvider: MyCustomLoremDataProvider(),
+      ),
+    ),
+  );
+
+  FixtureDefinition<Company> noContent() => redefine(
+    (newsArticle) => NewsArticle(
+      title: faker.lorem.sentence(),
+      content: null,
+    ),
+    faker: Faker(
+      seed: Random().nextInt(9876543210),
+      provider: FakerDataProvider(
+        loremDataProvider: MyOtherCustomLoremDataProvider(),
+      ),
+    ),
+  );
+}
+```
 
 ## Contributing
 data_fixture_dart is an open source project, so feel free to contribute.
 You can open an issue for problems or suggestions, and you can propose your own fixes by opening a pull request with the changes.
+
+## Testing
+In order to test the package run this command
+
+```shell
+dart test
+```

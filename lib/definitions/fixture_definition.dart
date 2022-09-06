@@ -6,10 +6,13 @@ typedef FixtureDefinitionBuilder<Model> = Model Function(Faker faker);
 
 /// This defines a fixture to generate the model.
 abstract class FixtureDefinition<Model> implements FixtureMaker<Model> {
-  final FixtureDefinitionBuilder<Model> definition;
-  final Faker faker = Faker();
+  FixtureDefinition(
+    this.definition, {
+    Faker? faker,
+  }) : this.faker = faker ?? Faker();
 
-  FixtureDefinition(this.definition);
+  final FixtureDefinitionBuilder<Model> definition;
+  final Faker faker;
 
   @override
   List<Model> makeMany(
