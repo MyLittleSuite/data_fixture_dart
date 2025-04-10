@@ -3,12 +3,14 @@ import 'package:data_fixture_dart/data_fixture_dart.dart';
 import 'dog.dart' show Dog, DogFixture;
 
 class Person {
+  final int id;
   final String firstName;
   final String lastName;
   final DateTime? birthday;
   final List<Dog> dogs;
 
   Person({
+    required this.id,
     required this.firstName,
     required this.lastName,
     this.birthday,
@@ -23,7 +25,8 @@ extension PersonFixture on Person {
 class _PersonFixtureFactory extends JsonFixtureFactory<Person> {
   @override
   FixtureDefinition<Person> definition() => define(
-        (faker) => Person(
+        (faker, [int i = 0]) => Person(
+          id: i,
           firstName: faker.person.firstName(),
           lastName: faker.person.lastName(),
           birthday: faker.date.dateTime(),
@@ -37,7 +40,8 @@ class _PersonFixtureFactory extends JsonFixtureFactory<Person> {
     DateTime? birthday,
   }) =>
       redefineJson(
-        (person) => Person(
+        (person, [int i = 0]) => Person(
+          id: i,
           firstName: firstName,
           lastName: lastName,
           birthday: birthday,
@@ -47,7 +51,8 @@ class _PersonFixtureFactory extends JsonFixtureFactory<Person> {
 
   @override
   JsonFixtureDefinition<Person> jsonDefinition() => defineJson(
-        (person) => {
+        (person, [int i = 0]) => {
+          "id": i,
           "firstName": person.firstName,
           "lastName": person.lastName,
           "birthday": person.birthday?.toIso8601String(),

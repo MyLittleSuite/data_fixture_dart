@@ -14,6 +14,8 @@ void main() {
   test('make one object', () {
     final dog = DogFixture.factory().makeSingle();
 
+    expect(dog.id, isNotNull);
+    expect(dog.id, 0);
     expect(dog.name, isNotNull);
     expect(dog.name.isEmpty, isFalse);
     expect(dog.age, isNotNull);
@@ -23,6 +25,8 @@ void main() {
   test('make one object with redefinition', () {
     final dog = DogFixture.factory().old().makeSingle();
 
+    expect(dog.id, isNotNull);
+    expect(dog.id, 0);
     expect(dog.name, isNotNull);
     expect(dog.name.isEmpty, isFalse);
     expect(dog.age, isNotNull);
@@ -32,7 +36,7 @@ void main() {
   test('make one json object', () {
     final result = PersonFixture.factory().makeJsonObject();
 
-    ["firstName", "lastName", "dogs", "birthday"].forEach((element) {
+    ["id", "firstName", "lastName", "dogs", "birthday"].forEach((element) {
       expect(result[element], isNotNull);
     });
   });
@@ -42,6 +46,7 @@ void main() {
         .withFields(firstName: expectedString1, lastName: expectedString2)
         .makeJsonObject();
 
+    expect(result["id"], equals(0));
     expect(result["firstName"], equals(expectedString1));
     expect(result["lastName"], equals(expectedString2));
     expect(result["birthday"], isNull);
@@ -52,10 +57,12 @@ void main() {
         .withFields(firstName: expectedString2, lastName: expectedString1)
         .makeSingleWithJsonObject();
 
+    expect(result.object.id, equals(0));
     expect(result.object.firstName, equals(expectedString2));
     expect(result.object.lastName, equals(expectedString1));
     expect(result.object.birthday, isNull);
 
+    expect(result.json["id"], equals(0));
     expect(result.json["firstName"], equals(expectedString2));
     expect(result.json["lastName"], equals(expectedString1));
     expect(result.json["birthday"], isNull);
@@ -65,6 +72,7 @@ void main() {
     final results = PersonFixture.factory().makeMany(3);
 
     expect(results.length, equals(3));
+    expect(results.map((e) => e.id).toList(), [0, 1, 2]);
   });
 
   test('make many objects with redefinition', () {
@@ -77,6 +85,7 @@ void main() {
         .makeMany(3);
 
     expect(results.length, equals(3));
+    expect(results.map((e) => e.id).toList(), [0, 1, 2]);
     results.forEach((result) {
       expect(result.firstName, equals(expectedString1));
       expect(result.lastName, equals(expectedString2));
@@ -87,6 +96,7 @@ void main() {
   test('make one object with associated json object', () {
     final result = DogFixture.factory().makeSingleWithJsonObject();
 
+    expect(result.json["id"], equals(0));
     expect(result.json["name"], equals(result.object.name));
     expect(result.json["age"], equals(result.object.age));
   });
@@ -96,7 +106,7 @@ void main() {
 
     expect(results.length, equals(3));
     results.forEach((result) {
-      ["firstName", "lastName", "dogs", "birthday"].forEach((key) {
+      ["id", "firstName", "lastName", "dogs", "birthday"].forEach((key) {
         expect(result[key], isNotNull);
       });
     });
@@ -112,6 +122,7 @@ void main() {
         .makeJsonArray(3);
 
     expect(results.length, equals(3));
+    expect(results.map((e) => e["id"]).toList(), [0, 1, 2]);
     results.forEach((result) {
       expect(result["firstName"], equals(expectedString1));
       expect(result["lastName"], equals(expectedString2));
@@ -123,6 +134,7 @@ void main() {
     final results = DogFixture.factory().old().makeManyWithJsonArray(3);
 
     expect(results.length, equals(3));
+    expect(results.map((e) => e.json["id"]).toList(), [0, 1, 2]);
     results.forEach((result) {
       expect(result.json["name"], equals(result.object.name));
       expect(result.json["age"], equals(result.object.age));
@@ -138,6 +150,9 @@ void main() {
         .makeManyWithJsonArray(3);
 
     expect(results.length, equals(3));
+    expect(results.map((e) => e.json["id"]).toList(), [0, 1, 2]);
+    expect(results.map((e) => e.object.id).toList(), [0, 1, 2]);
+
     results.forEach((result) {
       expect(result.object.firstName, equals(expectedString1));
       expect(result.object.lastName, equals(expectedString2));
@@ -154,6 +169,8 @@ void main() {
     final results = CompanyFixture.factory().makeJsonArrayFromMany(companies);
 
     expect(results.length, companies.length);
+    expect(companies.map((e) => e.id), results.map((e) => e["id"]));
+
     results.asMap().forEach((index, result) {
       final company = companies[index];
 
@@ -175,5 +192,6 @@ void main() {
 
     expect(result["name"], equals(dog.name));
     expect(result["age"], equals(dog.age));
+    expect(result["id"], equals(0));
   });
 }
