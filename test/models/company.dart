@@ -21,16 +21,16 @@ extension CompanyFixture on Company {
 class _CompanyFixtureFactory extends JsonFixtureFactory<Company> {
   @override
   FixtureDefinition<Company> definition() => define(
-        (faker, [int i = 0]) => Company(
-          id: i,
+        (faker, [int index = 0]) => Company(
+          id: index,
           name: faker.company.name(),
           employees: model.PersonFixture.factory().makeMany(5),
         ),
       );
 
   FixtureDefinition<Company> empty() => redefine(
-        (company, [int i = 0]) => Company(
-          id: i,
+        (company, [int index = 0]) => Company(
+          id: index,
           name: company.name,
           employees: [],
         ),
@@ -38,8 +38,8 @@ class _CompanyFixtureFactory extends JsonFixtureFactory<Company> {
 
   @override
   JsonFixtureDefinition<Company> jsonDefinition() => defineJson(
-        (company, [int i = 0]) => {
-          "id": i,
+        (company, [int index = 0]) => {
+          "id": index,
           "name": company.name,
           "employees": model.PersonFixture.factory()
               .makeJsonArrayFromMany(company.employees),

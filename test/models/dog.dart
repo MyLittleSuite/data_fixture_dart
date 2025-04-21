@@ -19,16 +19,16 @@ extension DogFixture on Dog {
 class _DogFixtureFactory extends JsonFixtureFactory<Dog> {
   @override
   FixtureDefinition<Dog> definition() => define(
-        (faker, [int i = 0]) => Dog(
-          id: i,
+        (faker, [int index = 0]) => Dog(
+          id: index,
           name: faker.person.name(),
           age: faker.randomGenerator.integer(15, min: 1),
         ),
       );
 
   JsonFixtureDefinition<Dog> old() => redefineJson(
-        (dog, [int i = 0]) => Dog(
-          id: i,
+        (dog, [int index = 0]) => Dog(
+          id: index,
           name: dog.name,
           age: 20,
         ),
@@ -36,8 +36,8 @@ class _DogFixtureFactory extends JsonFixtureFactory<Dog> {
 
   @override
   JsonFixtureDefinition<Dog> jsonDefinition() => defineJson(
-        (dog, [int i = 0]) => {
-          "id": i,
+        (dog, [int index = 0]) => {
+          "id": index,
           "name": dog.name,
           "age": dog.age,
         },

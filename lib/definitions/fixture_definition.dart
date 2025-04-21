@@ -2,7 +2,8 @@ import 'package:data_fixture_dart/makers/fixture_maker.dart';
 import 'package:faker/faker.dart';
 
 /// Type alias for fixture definition.
-typedef FixtureDefinitionBuilder<Model> = Model Function(Faker faker, [int i]);
+typedef FixtureDefinitionBuilder<Model> = Model Function(Faker faker,
+    [int index]);
 
 /// This defines a fixture to generate the model.
 abstract class FixtureDefinition<Model> implements FixtureMaker<Model> {
@@ -21,7 +22,7 @@ abstract class FixtureDefinition<Model> implements FixtureMaker<Model> {
   }) =>
       List.generate(
         number,
-        (int i) => definition(faker, i),
+        (int index) => definition(faker, index),
         growable: growableList,
       );
 

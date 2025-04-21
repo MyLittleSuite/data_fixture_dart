@@ -4,7 +4,7 @@ import 'package:data_fixture_dart/misc/fixture_tuple.dart';
 
 /// Type alias for JSON fixture definition.
 typedef JsonFixtureDefinitionBuilder<Model> = Map<String, dynamic>
-    Function(Model object, [int i]);
+    Function(Model object, [int index]);
 
 /// It defines a fixture to generate the model and the associated JSON.
 abstract class JsonFixtureDefinition<Model> extends JsonFixtureMaker<Model> {
@@ -20,7 +20,7 @@ abstract class JsonFixtureDefinition<Model> extends JsonFixtureMaker<Model> {
   }) =>
       List.generate(
         number,
-        (i) => jsonDefinition(fixtureDefinition.makeSingle(), i),
+        (int index) => jsonDefinition(fixtureDefinition.makeSingle(), index),
         growable: growableList,
       );
 

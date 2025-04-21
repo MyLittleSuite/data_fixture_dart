@@ -27,9 +27,9 @@ abstract class FixtureFactory<Model> implements FixtureMaker<Model> {
     Faker? faker,
   }) =>
       _FixtureDefinitionImpl(
-        (faker, [int i = 0]) {
-          final model = definition().definition(faker, i);
-          return redefinition(model, i);
+        (faker, [int index = 0]) {
+          final model = definition().definition(faker, index);
+          return redefinition(model, index);
         },
         faker: faker,
       );

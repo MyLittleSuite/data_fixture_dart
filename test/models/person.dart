@@ -25,8 +25,8 @@ extension PersonFixture on Person {
 class _PersonFixtureFactory extends JsonFixtureFactory<Person> {
   @override
   FixtureDefinition<Person> definition() => define(
-        (faker, [int i = 0]) => Person(
-          id: i,
+        (faker, [int index = 0]) => Person(
+          id: index,
           firstName: faker.person.firstName(),
           lastName: faker.person.lastName(),
           birthday: faker.date.dateTime(),
@@ -40,8 +40,8 @@ class _PersonFixtureFactory extends JsonFixtureFactory<Person> {
     DateTime? birthday,
   }) =>
       redefineJson(
-        (person, [int i = 0]) => Person(
-          id: i,
+        (person, [int index = 0]) => Person(
+          id: index,
           firstName: firstName,
           lastName: lastName,
           birthday: birthday,
@@ -51,8 +51,8 @@ class _PersonFixtureFactory extends JsonFixtureFactory<Person> {
 
   @override
   JsonFixtureDefinition<Person> jsonDefinition() => defineJson(
-        (person, [int i = 0]) => {
-          "id": i,
+        (person, [int index = 0]) => {
+          "id": index,
           "firstName": person.firstName,
           "lastName": person.lastName,
           "birthday": person.birthday?.toIso8601String(),
