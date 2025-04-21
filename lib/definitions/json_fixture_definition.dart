@@ -29,15 +29,10 @@ abstract class JsonFixtureDefinition<Model> extends JsonFixtureMaker<Model> {
     List<Model> objects, {
     bool growableList = false,
   }) {
-    final List<Map<String, dynamic>> res = [];
-
-    for (int i = 0; i < objects.length; i++) {
-      res.add(jsonDefinition(objects[i], i));
-    }
-
-    return res.toList(growable: growableList);
+    return objects.map((Model model) {
+      return jsonDefinition(model, objects.indexOf(model));
+    }).toList(growable: growableList);
   }
-  // objects.map(jsonDefinition).toList(growable: growableList);
 
   @override
   Map<String, dynamic> makeJsonObject() => makeJsonArray(1).first;
@@ -53,15 +48,14 @@ abstract class JsonFixtureDefinition<Model> extends JsonFixtureMaker<Model> {
     int number, {
     bool growableList = false,
   }) {
-    final models = fixtureDefinition.makeMany(number);
-    final List<FixtureTuple<Model>> items = [];
-
-    for (int i = 0; i < models.length; i++) {
-      final json = jsonDefinition(models[i], i);
-      items.add(FixtureTuple<Model>(object: models[i], json: json));
-    }
-
-    return items.toList(growable: growableList);
+    return fixtureDefinition
+        .makeMany(number)
+        .asMap()
+        .entries
+        .map((MapEntry<int, Model> entry) {
+      final Map<String, dynamic> json = jsonDefinition(entry.value, entry.key);
+      return FixtureTuple(object: entry.value, json: json);
+    }).toList(growable: growableList);
   }
 
   @override
