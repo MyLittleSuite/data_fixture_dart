@@ -1,9 +1,6 @@
-## 2.4.0
-
-* Exposed index for makeMany.
-
 ## 2.3.0
 
+* Exposed index for makeMany.
 * Add option to pass custom Faker instance to `define` and/or `redefine` as an optional parameter.
 
 ## 2.2.0
