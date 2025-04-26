@@ -3,8 +3,8 @@ import 'package:data_fixture_dart/makers/json_fixture_maker.dart';
 import 'package:data_fixture_dart/misc/fixture_tuple.dart';
 
 /// Type alias for JSON fixture definition.
-typedef JsonFixtureDefinitionBuilder<Model> = Map<String, dynamic> Function(
-    Model object);
+typedef JsonFixtureDefinitionBuilder<Model> = Map<String, dynamic>
+    Function(Model object, [int index]);
 
 /// It defines a fixture to generate the model and the associated JSON.
 abstract class JsonFixtureDefinition<Model> extends JsonFixtureMaker<Model> {
@@ -20,7 +20,7 @@ abstract class JsonFixtureDefinition<Model> extends JsonFixtureMaker<Model> {
   }) =>
       List.generate(
         number,
-        (_) => jsonDefinition(fixtureDefinition.makeSingle()),
+        (int index) => jsonDefinition(fixtureDefinition.makeSingle(), index),
         growable: growableList,
       );
 
@@ -28,8 +28,11 @@ abstract class JsonFixtureDefinition<Model> extends JsonFixtureMaker<Model> {
   List<Map<String, dynamic>> makeJsonArrayFromMany(
     List<Model> objects, {
     bool growableList = false,
-  }) =>
-      objects.map(jsonDefinition).toList(growable: growableList);
+  }) {
+    return objects.map((Model model) {
+      return jsonDefinition(model, objects.indexOf(model));
+    }).toList(growable: growableList);
+  }
 
   @override
   Map<String, dynamic> makeJsonObject() => makeJsonArray(1).first;
@@ -44,16 +47,16 @@ abstract class JsonFixtureDefinition<Model> extends JsonFixtureMaker<Model> {
   List<FixtureTuple<Model>> makeManyWithJsonArray(
     int number, {
     bool growableList = false,
-  }) =>
-      List.generate(
-        number,
-        (_) {
-          final model = fixtureDefinition.makeSingle();
-          final json = jsonDefinition(model);
-          return FixtureTuple<Model>(object: model, json: json);
-        },
-        growable: growableList,
-      );
+  }) {
+    return fixtureDefinition
+        .makeMany(number)
+        .asMap()
+        .entries
+        .map((MapEntry<int, Model> entry) {
+      final Map<String, dynamic> json = jsonDefinition(entry.value, entry.key);
+      return FixtureTuple(object: entry.value, json: json);
+    }).toList(growable: growableList);
+  }
 
   @override
   FixtureTuple<Model> makeSingleWithJsonObject() =>

@@ -3,7 +3,8 @@ import 'package:data_fixture_dart/makers/fixture_maker.dart';
 import 'package:faker/faker.dart';
 
 /// Type alias for fixture redefinition.
-typedef FixtureRedefinitionBuilder<Model> = Model Function(Model object);
+typedef FixtureRedefinitionBuilder<Model> = Model Function(Model object,
+    [int i]);
 
 /// This abstract class specifies the definitions to create an object.
 abstract class FixtureFactory<Model> implements FixtureMaker<Model> {
@@ -26,9 +27,9 @@ abstract class FixtureFactory<Model> implements FixtureMaker<Model> {
     Faker? faker,
   }) =>
       _FixtureDefinitionImpl(
-        (faker) {
-          final model = definition().definition(faker);
-          return redefinition(model);
+        (faker, [int index = 0]) {
+          final model = definition().definition(faker, index);
+          return redefinition(model, index);
         },
         faker: faker,
       );
