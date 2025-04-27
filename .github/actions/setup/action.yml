@@ -1,0 +1,11 @@
+name: Setup Dart environment and get dependencies
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Dart
+      uses: dart-lang/setup-dart@v1.0
+
+    - name: Get dependencies
+      shell: bash
+      run: dart pub get

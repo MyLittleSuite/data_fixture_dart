@@ -1,0 +1,15 @@
+name: Run Dart Analyze
+
+on:
+  workflow_call:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Dart
+        uses: ./.github/actions/setup
+      - name: Analyze
+        run: dart analyze

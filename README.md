@@ -1,6 +1,6 @@
 # data_fixture_dart
 
-![data_fixture_dart_ci](https://github.com/MyLittleSuite/data_fixture_dart/workflows/Dart/badge.svg)
+![data_fixture_dart_ci](https://github.com/MyLittleSuite/data_fixture_dart/workflows/Dart%20CI/badge.svg)
 [![Pub](https://img.shields.io/pub/v/data_fixture_dart.svg)](https://pub.dev/packages/data_fixture_dart)
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
