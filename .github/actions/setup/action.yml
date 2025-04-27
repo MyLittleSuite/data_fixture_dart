@@ -5,6 +5,8 @@ runs:
   steps:
     - name: Install Dart
       uses: dart-lang/setup-dart@v1.0
+      with:
+        sdk: 2.12.0
 
     - name: Get dependencies
       shell: bash
