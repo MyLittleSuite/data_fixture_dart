@@ -28,7 +28,7 @@ extension CompanyFixture on Company {
 class _CompanyFixtureFactory extends FixtureFactory<Company> {
   @override
   FixtureDefinition<Company> definition() => define(
-        (faker) => Company(
+        (faker, [int index = 0]) => Company(
           name: faker.company.name(),
           employees: PersonFixture.factory().makeMany(5),
         ),
@@ -37,7 +37,7 @@ class _CompanyFixtureFactory extends FixtureFactory<Company> {
   // If you need to override a model field, simply define a function that returns a `FixtureDefinition`.
   // To redefine the default definition, you must use the `redefine` function.
   FixtureDefinition<Company> empty(String name) => redefine(
-        (company) => Company(
+        (company, [int index = 0]) => Company(
           name: name,
           employees: [],
         ),
@@ -71,7 +71,7 @@ extension CompanyFixture on Company {
 class _CompanyFixtureFactory extends JsonFixtureFactory<Company> {
   @override
   FixtureDefinition<Company> definition() => define(
-        (faker) => Company(
+        (faker, [int index = 0]) => Company(
           name: faker.company.name(),
           employees: PersonFixture.factory().makeMany(5),
         ),
@@ -80,7 +80,7 @@ class _CompanyFixtureFactory extends JsonFixtureFactory<Company> {
   // This function define the json definition, using the default definition (function `definition()`).
   @override
   JsonFixtureDefinition<Company> jsonDefinition() => defineJson(
-        (company) => {
+        (company, [int index = 0]) => {
           "name": company.name,
           "employees":
               PersonFixture.factory().makeJsonArrayFromMany(company.employees),
@@ -90,7 +90,7 @@ class _CompanyFixtureFactory extends JsonFixtureFactory<Company> {
   // If you need to generate the JSON Object of an empty company, change the return type to `JSONFixtureDefinition`
   // Previously the return was `FixtureDefinition`.
   JsonFixtureDefinition<Company> empty(String name) => redefineJson(
-        (company) => Company(
+        (company, [int index = 0]) => Company(
           name: name,
           employees: [],
         ),
@@ -139,7 +139,7 @@ extension NewsArticleFixture on NewsArticle {
 class _NewsArticleFixtureFactory extends FixtureFactory<NewsArticle> {
   @override
   FixtureDefinition<NewsArticle> definition() => define(
-    (Faker faker) => NewsArticle(
+    (Faker faker, [int index = 0]) => NewsArticle(
       title: faker.lorem.sentence(),
       content: faker.lorem.sentences(3).join(' '),
     ),
@@ -151,8 +151,8 @@ class _NewsArticleFixtureFactory extends FixtureFactory<NewsArticle> {
     ),
   );
 
-  FixtureDefinition<Company> noContent() => redefine(
-    (newsArticle) => NewsArticle(
+  FixtureDefinition<NewsArticle> noContent() => redefine(
+    (newsArticle, [int index = 0]) => NewsArticle(
       title: faker.lorem.sentence(),
       content: null,
     ),
