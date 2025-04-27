@@ -151,7 +151,7 @@ class _NewsArticleFixtureFactory extends FixtureFactory<NewsArticle> {
     ),
   );
 
-  FixtureDefinition<Company> noContent() => redefine(
+  FixtureDefinition<NewsArticle> noContent() => redefine(
     (newsArticle, [int index = 0]) => NewsArticle(
       title: faker.lorem.sentence(),
       content: null,
