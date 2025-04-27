@@ -1,0 +1,14 @@
+name: Setup Dart environment and get dependencies
+description: Installs Dart SDK 2.12.0 and runs `dart pub get` to fetch project dependencies
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Dart
+      uses: dart-lang/setup-dart@v1.0
+      with:
+        sdk: 2.14.0
+
+    - name: Get dependencies
+      shell: bash
+      run: dart pub get
