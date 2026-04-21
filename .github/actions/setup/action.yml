@@ -5,7 +5,7 @@ runs:
   using: "composite"
   steps:
     - name: Install Dart
-      uses: dart-lang/setup-dart@v1.4
+      uses: dart-lang/setup-dart@v1.7.2
       with:
         sdk: 2.14.0
 
