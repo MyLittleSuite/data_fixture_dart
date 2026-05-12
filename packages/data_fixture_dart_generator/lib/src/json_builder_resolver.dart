@@ -34,16 +34,16 @@ class JsonBuilderResolver {
   );''';
     }
 
-    final fields = paramNames
+    final fieldLines = paramNames
         .map((n) => "        '$n': $varName.$n")
         .join(',\n');
+    final fieldsBlock = fieldLines.isEmpty ? '' : '$fieldLines,\n';
 
     return '''
   @override
   JsonFixtureDefinition<$className> jsonDefinition() => defineJson(
     ($varName, [int index = 0]) => {
-$fields,
-    },
+${fieldsBlock}    },
   );''';
   }
 
