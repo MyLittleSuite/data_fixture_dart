@@ -68,11 +68,18 @@ class FixtureGenerator extends Generator {
     final callPrefix = _constructorResolver.callPrefix(classElement, constructorName);
 
     // Build explicit fields map: paramName → FakerType
+    // fields annotation is Map<Symbol, Object> but only FakerType values are supported here.
     final explicitFields = <String, FakerType>{};
     final fieldsMap = annotation.read('fields').mapValue;
     fieldsMap.forEach((keyObj, valueObj) {
       final paramName = keyObj!.toSymbolValue()!;
-      final enumIndex = valueObj!.getField('index')!.toIntValue()!;
+      final enumIndex = valueObj!.getField('index')?.toIntValue();
+      if (enumIndex == null) {
+        throw InvalidGenerationSourceError(
+          '@FixtureFor fields map value for #$paramName must be a FakerType enum value.',
+          element: classElement,
+        );
+      }
       explicitFields[paramName] = FakerType.values[enumIndex];
     });
 
@@ -94,7 +101,7 @@ class FixtureGenerator extends Generator {
 
     // Determine JSON strategy
     final useToJson = hasJsonOverride ?? _jsonResolver.shouldUseToJson(classElement);
-    final isJsonFactory = useToJson || hasJsonOverride == true;
+    final isJsonFactory = useToJson;
 
     // Resolve traits
     final traitsMap = annotation.read('traits').mapValue;
