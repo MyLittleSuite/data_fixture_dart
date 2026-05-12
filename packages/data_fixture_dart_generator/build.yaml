@@ -1,0 +1,10 @@
+builders:
+  data_fixture_dart_generator:
+    import: "package:data_fixture_dart_generator/builder.dart"
+    builder_factories: ["fixtureGeneratorBuilder"]
+    build_extensions: {".dart": [".fixture.dart"]}
+    auto_apply: dependents
+    build_to: source
+    required_inputs:
+      - ".freezed.dart"
+      - ".g.dart"
