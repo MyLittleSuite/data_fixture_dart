@@ -1,6 +1,7 @@
 import 'dart:math';
 
-/// Normalizes a field name: strips underscores, lowercases, removes camelCase boundaries.
+/// Normalizes a field name: strips underscores and lowercases.
+/// camelCase fields like `firstName` become `firstname`.
 String normalize(String name) {
   return name.replaceAll('_', '').toLowerCase();
 }

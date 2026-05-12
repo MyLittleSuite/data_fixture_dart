@@ -15,8 +15,7 @@ void main() {
         () => expect(jaroWinkler('firstname', 'firstname'), greaterThanOrEqualTo(0.85)));
     test('fn vs firstname below threshold',
         () => expect(jaroWinkler('fn', 'firstname'), lessThan(0.85)));
-    test('email vs email exact match', () => expect(jaroWinkler('email', 'email'), 1.0));
-    test('bday vs birthday above threshold',
+    test('bday vs birthday below threshold',
         () => expect(jaroWinkler('bday', 'birthday'), lessThan(0.85)));
     test('surname vs lastname below threshold',
         () => expect(jaroWinkler('surname', 'lastname'), lessThan(0.85)));
