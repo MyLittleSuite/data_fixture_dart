@@ -101,6 +101,20 @@ void main() {
       );
     });
 
+    test('layer 3: explicit FakerType wins over nullable', () {
+      expect(
+        resolveFieldExpr(
+          paramName: 'nickname',
+          dartTypeName: 'String',
+          isNullable: true,
+          isList: false,
+          customTypeName: null,
+          explicitFakerType: FakerType.personFirstName,
+        ),
+        'faker.person.firstName()',
+      );
+    });
+
     test('id int → index convention', () {
       expect(
         resolveFieldExpr(

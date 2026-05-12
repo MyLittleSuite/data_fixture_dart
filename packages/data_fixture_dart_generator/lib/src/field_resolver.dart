@@ -42,6 +42,6 @@ String _typeDefault(String typeName, bool isList, String? customTypeName) {
     'DateTime' => 'faker.date.dateTime()',
     _ => customTypeName != null
         ? '${customTypeName}Fixture.factory().makeSingle()'
-        : '/* TODO: provide value for $typeName */',
+        : 'null /* TODO: provide value for $typeName */',
   };
 }
