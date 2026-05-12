@@ -65,7 +65,8 @@ class ConstructorResolver {
         customType = typeName;
       }
     } else {
-      typeName = type.getDisplayString();
+      // ignore: deprecated_member_use
+      typeName = type.getDisplayString(withNullability: false);
     }
 
     return ResolvedParam(
