@@ -1,0 +1,5 @@
+targets:
+  $default:
+    builders:
+      data_fixture_dart_generator|fixture_generator:
+        enabled: true

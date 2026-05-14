@@ -24,16 +24,16 @@ class FixtureGenerator extends Generator {
 
     final bodies = StringBuffer();
 
-    for (final annotatedEl in library.annotatedWith(_fixtureForChecker)) {
-      final annotation = annotatedEl.annotation;
-      final output = _generateForAnnotation(annotation, imports);
-      bodies.writeln(output);
+    for (final element in library.allElements) {
+      for (final annotation in _fixtureForChecker.annotationsOf(element)) {
+        final output = _generateForAnnotation(ConstantReader(annotation), imports);
+        bodies.writeln(output);
+      }
     }
 
     if (bodies.isEmpty) return '';
 
     final buffer = StringBuffer();
-    buffer.writeln('// GENERATED CODE - DO NOT MODIFY BY HAND');
     buffer.writeln('// ignore_for_file: type=lint');
     buffer.writeln();
     for (final imp in imports) {
