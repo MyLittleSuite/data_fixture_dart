@@ -47,7 +47,10 @@ class TraitGenerator {
           (throw StateError('No code mapping for FakerType.$fakerType'));
     }
     if (literalValue == null) return 'null';
-    if (literalValue is String) return "'$literalValue'";
+    if (literalValue is String) {
+      final escaped = literalValue.replaceAll(r'\', r'\\').replaceAll("'", r"\'");
+      return "'$escaped'";
+    }
     return '$literalValue'; // int, double, bool
   }
 }

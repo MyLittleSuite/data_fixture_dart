@@ -35,18 +35,18 @@ class ConstructorResolver {
   }
 
   ConstructorElement _findConstructor(ClassElement classElement, String? name) {
+    final constructors = classElement.constructors;
     if (name != null && name.isNotEmpty) {
-      return classElement.constructors.firstWhere(
-        (c) => c.name == name,
-        orElse: () => throw StateError(
-          'Constructor "$name" not found on ${classElement.name}',
-        ),
-      );
+      for (final c in constructors) {
+        if (c.name == name) return c;
+      }
+      throw StateError('Constructor "$name" not found on ${classElement.name}');
     }
-    return classElement.constructors.firstWhere(
-      (c) => c.name.isEmpty,
-      orElse: () => classElement.constructors.first,
-    );
+    // Prefer unnamed constructor; fall back to first.
+    for (final c in constructors) {
+      if (c.name.isEmpty) return c;
+    }
+    return constructors.first;
   }
 
   ResolvedParam _resolveParam(ParameterElement p) {
@@ -61,7 +61,9 @@ class ConstructorResolver {
     if (type is InterfaceType) {
       typeName = type.element.name;
       final knownTypes = {'int', 'double', 'String', 'bool', 'DateTime', 'List', 'Map'};
-      if (!knownTypes.contains(typeName)) {
+      // Enums cannot have a FixtureFactory — leave customType null so the
+      // field resolver emits a TODO placeholder instead of makeSingle().
+      if (type.element is! EnumElement && !knownTypes.contains(typeName)) {
         customType = typeName;
       }
     } else {

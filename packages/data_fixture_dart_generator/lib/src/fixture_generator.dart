@@ -51,7 +51,15 @@ class FixtureGenerator extends Generator {
   ) {
     // Read model type
     final modelTypeValue = annotation.read('modelType').typeValue;
-    final classElement = (modelTypeValue as InterfaceType).element as ClassElement;
+    final element = (modelTypeValue as InterfaceType).element;
+    if (element is! ClassElement || element.isAbstract) {
+      throw InvalidGenerationSourceError(
+        '@FixtureFor requires a concrete, non-abstract class. '
+        '"${element.name}" is not a valid target.',
+        element: element,
+      );
+    }
+    final classElement = element;
     final className = classElement.name;
 
     // Add model import — normalize asset: URIs to package: form
@@ -74,7 +82,7 @@ class FixtureGenerator extends Generator {
     fieldsMap.forEach((keyObj, valueObj) {
       final paramName = keyObj!.toSymbolValue()!;
       final enumIndex = valueObj!.getField('index')?.toIntValue();
-      if (enumIndex == null) {
+      if (enumIndex == null || enumIndex >= FakerType.values.length) {
         throw InvalidGenerationSourceError(
           '@FixtureFor fields map value for #$paramName must be a FakerType enum value.',
           element: classElement,
@@ -108,6 +116,12 @@ class FixtureGenerator extends Generator {
     final traitMethods = StringBuffer();
     traitsMap.forEach((traitKeyObj, traitValueObj) {
       final traitName = traitKeyObj!.toStringValue()!;
+      if (!RegExp(r'^[a-zA-Z_$][a-zA-Z0-9_$]*$').hasMatch(traitName)) {
+        throw InvalidGenerationSourceError(
+          'Trait name "$traitName" is not a valid Dart identifier.',
+          element: classElement,
+        );
+      }
       final overrides = <String, String>{};
 
       traitValueObj!.toMapValue()!.forEach((paramKeyObj, paramValueObj) {
