@@ -5,12 +5,24 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/dwyl/esta/issues)
 
-Create data models easily, with no headache.
+Create fake model instances for tests without boilerplate. Define a factory once, call `makeSingle()` or `makeMany(n)` anywhere.
 
-## Usage
+## Packages
+
+| Package | pub.dev | Description |
+|---|---|---|
+| `data_fixture_dart` | [![Pub](https://img.shields.io/pub/v/data_fixture_dart.svg)](https://pub.dev/packages/data_fixture_dart) | Core library — factory base classes and `faker` re-export |
+| `data_fixture_dart_annotations` | [![Pub](https://img.shields.io/pub/v/data_fixture_dart_annotations.svg)](https://pub.dev/packages/data_fixture_dart_annotations) | Annotations for code generation (`@FixtureFor`, `FakerType`, traits) |
+| `data_fixture_dart_generator` | [![Pub](https://img.shields.io/pub/v/data_fixture_dart_generator.svg)](https://pub.dev/packages/data_fixture_dart_generator) | `build_runner` generator — produces factory boilerplate from annotations |
+
+---
+
+## Manual approach
+
+Write factory classes by hand. Full control — use arbitrary Dart logic in builders.
 
 ### Basic
-1. Create a new file to define the fixture factory for a model.
+
 ```dart
 import 'package:data_fixture_dart/data_fixture_dart.dart';
 
@@ -18,7 +30,7 @@ class Company {
   final String name;
   final List<Person> employees;
 
-  Company({this.name, this.employees});
+  Company({required this.name, required this.employees});
 }
 
 extension CompanyFixture on Company {
@@ -34,8 +46,6 @@ class _CompanyFixtureFactory extends FixtureFactory<Company> {
         ),
       );
 
-  // If you need to override a model field, simply define a function that returns a `FixtureDefinition`.
-  // To redefine the default definition, you must use the `redefine` function.
   FixtureDefinition<Company> empty(String name) => redefine(
         (company, [int index = 0]) => Company(
           name: name,
@@ -45,25 +55,22 @@ class _CompanyFixtureFactory extends FixtureFactory<Company> {
 }
 ```
 
-2. Then you can build the model by using its factory.
 ```dart
-// Create a single object of type Company.
-CompanyFixture.factory().makeSingle();
-// Create a single object of type Company with no employees.
-CompanyFixture.factory().empty("EmptyCompany").make();
+// Single instance
+Company company = CompanyFixture.factory().makeSingle();
 
-// Create 10 objects of type Company.
-CompanyFixture.factory().makeMany(10);
-// Create 10 objects of type Company with no employees.
-CompanyFixture.factory().empty("EmptyCompany").makeMany(10);
+// Custom variant
+Company empty = CompanyFixture.factory().empty('ACME').make();
+
+// List of 10
+List<Company> companies = CompanyFixture.factory().makeMany(10);
 ```
 
-### JSON Fixtures
-A factory can create a JSON Object from a generated model.
-1. First, you have to extend `JSONFixtureFactory` protocol to the model factory.
-```dart
-import 'package:data_fixture_dart/data_fixture_dart.dart';
+### JSON fixtures
 
+Extend `JsonFixtureFactory` and override `jsonDefinition()`.
+
+```dart
 extension CompanyFixture on Company {
   static _CompanyFixtureFactory factory() => _CompanyFixtureFactory();
 }
@@ -77,18 +84,14 @@ class _CompanyFixtureFactory extends JsonFixtureFactory<Company> {
         ),
       );
 
-  // This function define the json definition, using the default definition (function `definition()`).
   @override
   JsonFixtureDefinition<Company> jsonDefinition() => defineJson(
         (company, [int index = 0]) => {
-          "name": company.name,
-          "employees":
-              PersonFixture.factory().makeJsonArrayFromMany(company.employees),
+          'name': company.name,
+          'employees': PersonFixture.factory().makeJsonArrayFromMany(company.employees),
         },
       );
 
-  // If you need to generate the JSON Object of an empty company, change the return type to `JSONFixtureDefinition`
-  // Previously the return was `FixtureDefinition`.
   JsonFixtureDefinition<Company> empty(String name) => redefineJson(
         (company, [int index = 0]) => Company(
           name: name,
@@ -98,80 +101,170 @@ class _CompanyFixtureFactory extends JsonFixtureFactory<Company> {
 }
 ```
 
-2. Now you can generate the JSON Object of the model.
 ```dart
-// Create a single JSON object of type Company.
-CompanyFixture.factory().makeJsonObject();
-// Create a single JSON object of type Company with no employees.
-CompanyFixture.factory().empty("EmptyCompany").makeJsonObject();
+// JSON object
+Map<String, dynamic> json = CompanyFixture.factory().makeJsonObject();
 
-// Create a JSON Array of 10 objects of type Company.
-CompanyFixture.factory().makeJsonArray(10)
-// Create a JSON Array of 10 objects of type Company with no employees.
-CompanyFixture.factory().empty("EmptyCompany").makeJsonArray(10);
+// JSON array of 10
+List<Map<String, dynamic>> jsonArray = CompanyFixture.factory().makeJsonArray(10);
 
-// Create a Company object with its relative JSON object.
-CompanyFixture.factory().makeSingleWithJsonObject();
-// Create 10 Company object with its relative JSON objects.
-CompanyFixture.factory().makeManyWithJsonArray(10);
+// Paired model + JSON
+FixtureTuple<Company> tuple = CompanyFixture.factory().makeSingleWithJsonObject();
+
+// JSON from an existing instance
+final company = CompanyFixture.factory().makeSingle();
+final json = CompanyFixture.factory().makeJsonObjectFromSingle(company);
 ```
 
-3. With `JsonFixtureFactory` you can create a JSON from an external model object.
+### Custom Faker instance
+
+Pass a seeded or custom-provider `Faker` to `define`/`redefine`.
+
 ```dart
-final company = CompanyFixture.factory.makeSingle();
-final JSONObject = CompanyFixture.factory.makeJsonObjectFromSingle(from: company);
-
-final companies = CompanyFixture.factory.makeMany(3);
-final JSONArray = CompanyFixture.factory.makeJsonArrayFromMany(from: companies);
-```
-
-### Using a custom Faker instance
-
-Sometimes you want your `Faker` to have maybe a custom `seed` or custom `provider`.
-In that case you can simply pass a custom `Faker` instance to either `define` or `redefine`
-```dart
-import 'package:data_fixture_dart/data_fixture_dart.dart';
-
-extension NewsArticleFixture on NewsArticle {
-  static _NewsArticleFactory factory() => _NewsArticleFactory();
-}
-
 class _NewsArticleFixtureFactory extends FixtureFactory<NewsArticle> {
   @override
   FixtureDefinition<NewsArticle> definition() => define(
-    (Faker faker, [int index = 0]) => NewsArticle(
-      title: faker.lorem.sentence(),
-      content: faker.lorem.sentences(3).join(' '),
-    ),
-    faker: Faker(
-      seed: Random().nextInt(1234567890),
-      provider: FakerDataProvider(
-        loremDataProvider: MyCustomLoremDataProvider(),
-      ),
-    ),
-  );
-
-  FixtureDefinition<NewsArticle> noContent() => redefine(
-    (newsArticle, [int index = 0]) => NewsArticle(
-      title: faker.lorem.sentence(),
-      content: null,
-    ),
-    faker: Faker(
-      seed: Random().nextInt(9876543210),
-      provider: FakerDataProvider(
-        loremDataProvider: MyOtherCustomLoremDataProvider(),
-      ),
-    ),
-  );
+        (faker, [int index = 0]) => NewsArticle(
+          title: faker.lorem.sentence(),
+          content: faker.lorem.sentences(3).join(' '),
+        ),
+        faker: Faker(
+          seed: 42,
+          provider: FakerDataProvider(
+            loremDataProvider: MyCustomLoremDataProvider(),
+          ),
+        ),
+      );
 }
 ```
 
+---
+
+## Generator approach
+
+Let `build_runner` generate factory boilerplate from `@FixtureFor` annotations. Best for models with standard fields where `FakerType` mappings cover your needs.
+
+### Setup
+
+**1. Add dependencies to `pubspec.yaml`:**
+
+```yaml
+dependencies:
+  data_fixture_dart: ^4.0.0
+  data_fixture_dart_annotations: ^1.0.0
+
+dev_dependencies:
+  data_fixture_dart_generator: ^1.0.0
+  build_runner: ^2.4.0
+```
+
+**2. Enable the builder in `build.yaml`** (create the file at the project root if it doesn't exist):
+
+```yaml
+targets:
+  $default:
+    builders:
+      data_fixture_dart_generator|fixture_generator:
+        enabled: true
+```
+
+### Annotate models
+
+Create a Dart file (e.g., `test/fixtures.dart`) and annotate a `void` function with one `@FixtureFor` per model:
+
+```dart
+import 'package:data_fixture_dart_annotations/data_fixture_dart_annotations.dart';
+import 'package:my_app/models/dog.dart';
+import 'package:my_app/models/user.dart';
+
+@FixtureFor(Dog)
+@FixtureFor(User, hasJson: true)
+void fixtures() {}
+```
+
+**3. Run the generator:**
+
+```shell
+dart run build_runner build
+```
+
+This produces a `fixtures.fixture.dart` file alongside the annotated file.
+
+### @FixtureFor options
+
+| Parameter | Type | Description |
+|---|---|---|
+| `modelType` | `Type` | The model class to generate a factory for |
+| `constructor` | `String?` | Named constructor to use (default: unnamed) |
+| `hasJson` | `bool?` | Generate `JsonFixtureFactory` with `toJson()` |
+| `fields` | `Map<Symbol, FakerType>` | Override `FakerType` per constructor parameter |
+| `traits` | `Map<String, Map<Symbol, Object>>` | Named variants with overridden field values |
+
+### FakerType values
+
+| Enum value | Generated data |
+|---|---|
+| `personFirstName` | `faker.person.firstName()` |
+| `personLastName` | `faker.person.lastName()` |
+| `personName` | `faker.person.name()` |
+| `internetEmail` | `faker.internet.email()` |
+| `internetUrl` | `faker.internet.httpsUrl()` |
+| `dateDateTime` | `faker.date.dateTime()` |
+| `loremWord` | `faker.lorem.word()` |
+| `loremSentence` | `faker.lorem.sentence()` |
+| `randomInt` | `faker.randomGenerator.integer(100)` |
+| `randomDouble` | `faker.randomGenerator.decimal()` |
+| `addressCity` | `faker.address.city()` |
+| `addressCountry` | `faker.address.country()` |
+| `phoneNumber` | `faker.phoneNumber.us()` |
+| `companyName` | `faker.company.name()` |
+
+### Traits
+
+Traits generate named variant methods on the factory. Use `FakerType` or literal values via `FixtureTraitValue`:
+
+```dart
+@FixtureFor(Dog, traits: {
+  'old': {#age: FixtureTraitValue.literal(20)},
+})
+@FixtureFor(User, hasJson: true, traits: {
+  'verified': {#isVerified: FixtureTraitValue.literal(true)},
+  'withCustomEmail': {#email: FixtureTraitValue.faker(FakerType.internetEmail)},
+})
+void fixtures() {}
+```
+
+Generated usage:
+
+```dart
+// Standard factory
+Dog dog = DogFixture.factory().makeSingle();
+
+// Trait variant
+Dog oldDog = DogFixture.factory().old().makeSingle();
+
+// JSON with trait
+Map<String, dynamic> json = UserFixture.factory().verified().makeJsonObject();
+```
+
+---
+
+## When to use which approach
+
+| Situation | Approach |
+|---|---|
+| Standard model, fields map to `FakerType` | Generator |
+| Complex builders (computed fields, nested logic, external state) | Manual |
+| Need a seeded `Faker` for reproducible tests | Manual |
+| Incremental adoption — adding generator to an existing project | Both (mix freely) |
+
+---
+
 ## Contributing
-data_fixture_dart is an open source project, so feel free to contribute.
-You can open an issue for problems or suggestions, and you can propose your own fixes by opening a pull request with the changes.
+
+`data_fixture_dart` is an open source project. Open an issue for problems or suggestions, or propose fixes via pull request.
 
 ## Testing
-In order to test the package run this command
 
 ```shell
 dart test
