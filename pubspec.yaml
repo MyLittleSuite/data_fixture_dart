@@ -1,0 +1,9 @@
+name: data_fixture_dart_workspace
+description: Melos workspace root — not published.
+publish_to: none
+
+environment:
+  sdk: ">=3.7.0 <4.0.0"
+
+dev_dependencies:
+  melos: ^7.0.0
