@@ -11,6 +11,8 @@ import 'trait_generator.dart';
 
 const _fixtureForChecker = TypeChecker.fromRuntime(FixtureFor);
 
+typedef _PendingEntry = ({ClassElement element, bool inheritJson});
+
 class FixtureGenerator extends Generator {
   final _constructorResolver = ConstructorResolver();
   final _jsonResolver = JsonBuilderResolver();
@@ -23,12 +25,37 @@ class FixtureGenerator extends Generator {
     };
 
     final bodies = StringBuffer();
+    final generatedNames = <String>{};
+    final pendingAutoGen = <String, _PendingEntry>{};
 
+    // Phase 1: explicit @FixtureFor annotations
     for (final element in library.allElements) {
       for (final annotation in _fixtureForChecker.annotationsOf(element)) {
-        final output = _generateForAnnotation(ConstantReader(annotation), imports);
+        final reader = ConstantReader(annotation);
+        final modelTypeValue = reader.read('modelType').typeValue;
+        final classEl = (modelTypeValue as InterfaceType).element as ClassElement;
+        generatedNames.add(classEl.name);
+
+        final output = _generateForAnnotation(reader, imports, pendingAutoGen, generatedNames);
         bodies.writeln(output);
       }
+    }
+
+    // Phase 2: auto-generate base factories for nested types
+    while (pendingAutoGen.isNotEmpty) {
+      final entry = pendingAutoGen.entries.first;
+      pendingAutoGen.remove(entry.key);
+      if (generatedNames.contains(entry.key)) continue;
+      generatedNames.add(entry.key);
+
+      final output = _generateBaseFactory(
+        entry.value.element,
+        entry.value.inheritJson,
+        imports,
+        pendingAutoGen,
+        generatedNames,
+      );
+      bodies.writeln(output);
     }
 
     if (bodies.isEmpty) return '';
@@ -48,6 +75,8 @@ class FixtureGenerator extends Generator {
   String _generateForAnnotation(
     ConstantReader annotation,
     Set<String> imports,
+    Map<String, _PendingEntry> pendingAutoGen,
+    Set<String> generatedNames,
   ) {
     // Read model type
     final modelTypeValue = annotation.read('modelType').typeValue;
@@ -76,7 +105,6 @@ class FixtureGenerator extends Generator {
     final callPrefix = _constructorResolver.callPrefix(classElement, constructorName);
 
     // Build explicit fields map: paramName → FakerType
-    // fields annotation is Map<Symbol, Object> but only FakerType values are supported here.
     final explicitFields = <String, FakerType>{};
     final fieldsMap = annotation.read('fields').mapValue;
     fieldsMap.forEach((keyObj, valueObj) {
@@ -110,6 +138,9 @@ class FixtureGenerator extends Generator {
     // Determine JSON strategy
     final useToJson = hasJsonOverride ?? _jsonResolver.shouldUseToJson(classElement);
     final isJsonFactory = useToJson;
+
+    // Enqueue nested types for auto-generation
+    _enqueueNestedTypes(params, isJsonFactory, pendingAutoGen, generatedNames);
 
     // Resolve traits
     final traitsMap = annotation.read('traits').mapValue;
@@ -193,6 +224,85 @@ extension ${className}Fixture on $className {
   static _\$${className}FixtureFactory factory() => _\$${className}FixtureFactory();
 }
 ''';
+  }
+
+  String _generateBaseFactory(
+    ClassElement classElement,
+    bool inheritJson,
+    Set<String> imports,
+    Map<String, _PendingEntry> pendingAutoGen,
+    Set<String> generatedNames,
+  ) {
+    final className = classElement.name;
+
+    final uri = classElement.library.source.uri;
+    imports.add("import '${_normalizeUri(uri)}';");
+
+    final params = _constructorResolver.resolve(classElement, null);
+    final callPrefix = _constructorResolver.callPrefix(classElement, null);
+
+    // Enqueue further nested types, propagating inheritJson
+    _enqueueNestedTypes(params, inheritJson, pendingAutoGen, generatedNames);
+
+    final paramExprList = params.map((p) {
+      final expr = resolveFieldExpr(
+        paramName: p.name,
+        dartTypeName: p.dartTypeName,
+        isNullable: p.isNullable,
+        isList: p.isList,
+        customTypeName: p.customTypeName,
+        explicitFakerType: null,
+      );
+      return p.isNamed ? '${p.name}: $expr' : expr;
+    }).toList();
+    final paramExprs = paramExprList.isEmpty
+        ? ''
+        : '\n      ${paramExprList.join(',\n      ')},\n    ';
+
+    // Use JsonFixtureFactory only if parent requested json AND model has toJson()
+    final useJson = inheritJson && _jsonResolver.shouldUseToJson(classElement);
+    final baseClass =
+        useJson ? 'JsonFixtureFactory<$className>' : 'FixtureFactory<$className>';
+
+    final definitionBody = '''
+  @override
+  FixtureDefinition<$className> definition() => define(
+    (faker, [int index = 0]) => $callPrefix($paramExprs),
+  );''';
+
+    final jsonBody = useJson
+        ? _jsonResolver.generate(
+            className: className,
+            useToJson: true,
+            paramNames: params.map((p) => p.name).toList(),
+          )
+        : '';
+
+    return '''
+class _\$${className}FixtureFactory extends $baseClass {
+$definitionBody
+${jsonBody.isNotEmpty ? '\n$jsonBody\n' : ''}}
+
+extension ${className}Fixture on $className {
+  static _\$${className}FixtureFactory factory() => _\$${className}FixtureFactory();
+}
+''';
+  }
+
+  void _enqueueNestedTypes(
+    List<ResolvedParam> params,
+    bool inheritJson,
+    Map<String, _PendingEntry> pendingAutoGen,
+    Set<String> generatedNames,
+  ) {
+    for (final p in params) {
+      final classEl = p.customClassElement ?? p.listElementClassElement;
+      if (classEl == null) continue;
+      final name = classEl.name;
+      if (!generatedNames.contains(name) && !pendingAutoGen.containsKey(name)) {
+        pendingAutoGen[name] = (element: classEl, inheritJson: inheritJson);
+      }
+    }
   }
 
   String _normalizeUri(Uri uri) {

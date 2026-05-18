@@ -190,6 +190,24 @@ dart run build_runner build
 
 This produces a `fixtures.fixture.dart` file alongside the annotated file.
 
+### Nested models
+
+Only declare top-level models. The generator automatically discovers nested custom types and produces a base `FixtureFactory` for each one — no extra annotations needed.
+
+```dart
+// Only declare Owner. Dog and Address are auto-discovered.
+@FixtureFor(Owner)
+void fixtures() {}
+```
+
+Generated output includes factory classes for `Owner`, `Dog`, and `Address`. The nested factories use sensible defaults (same field resolution rules as explicit declarations). Lists of custom types default to `[]` in the generated definition.
+
+**`hasJson` propagation**: if the root has `hasJson: true`, nested types that expose `toJson()` automatically get `JsonFixtureFactory`. Nested types without `toJson()` fall back to `FixtureFactory`.
+
+**Explicit wins**: if a nested type has its own `@FixtureFor`, the explicit declaration is used and no base factory is auto-generated for it.
+
+Discovery is recursive — if `Owner` → `Address` → `Country`, all three get factories from a single `@FixtureFor(Owner)`.
+
 ### @FixtureFor options
 
 | Parameter | Type | Description |
@@ -254,8 +272,10 @@ Map<String, dynamic> json = UserFixture.factory().verified().makeJsonObject();
 | Situation | Approach |
 |---|---|
 | Standard model, fields map to `FakerType` | Generator |
-| Complex builders (computed fields, nested logic, external state) | Manual |
+| Nested models with standard fields | Generator (auto-discovered) |
+| Complex builders (computed fields, conditional branching, external state) | Manual |
 | Need a seeded `Faker` for reproducible tests | Manual |
+| Nested factories with cross-model logic beyond simple `makeSingle()` | Manual |
 | Incremental adoption — adding generator to an existing project | Both (mix freely) |
 
 ---

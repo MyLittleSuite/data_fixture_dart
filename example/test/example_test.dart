@@ -1,8 +1,8 @@
 import 'package:example/models/dog.dart';
+import 'package:example/models/owner.dart';
 import 'package:example/models/user.dart';
 import 'package:test/test.dart';
 
-import 'fixtures.fixture.dart' hide DogFixture;
 import '../lib/fixtures.fixture.dart';
 
 void main() {
@@ -39,6 +39,36 @@ void main() {
       final tuple = UserFixture.factory().verified().makeSingleWithJsonObject();
       expect(tuple.object.isVerified, isTrue);
       expect(tuple.json['isVerified'], isTrue);
+    });
+  });
+
+  group('Owner (nested data)', () {
+    test('makeSingle contains nested User', () {
+      final owner = OwnerFixture.factory().makeSingle();
+      expect(owner, isA<Owner>());
+      expect(owner.user, isA<User>());
+      expect(owner.user.name, isNotEmpty);
+      expect(owner.user.email, isNotEmpty);
+    });
+
+    test('makeSingle dogs defaults to empty list', () {
+      final owner = OwnerFixture.factory().makeSingle();
+      expect(owner.dogs, isEmpty);
+    });
+
+    test('makeMany produces correct count with distinct ids', () {
+      final owners = OwnerFixture.factory().makeMany(3);
+      expect(owners.length, 3);
+      expect(owners.map((o) => o.id).toList(), [0, 1, 2]);
+    });
+
+    test('each owner has independently generated nested User', () {
+      final owners = OwnerFixture.factory().makeMany(2);
+      // both have valid User instances
+      for (final owner in owners) {
+        expect(owner.user, isA<User>());
+        expect(owner.user.name, isNotEmpty);
+      }
     });
   });
 }

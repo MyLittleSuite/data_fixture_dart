@@ -13,6 +13,247 @@ Future<TestReaderWriter> _makeReader() async {
 
 void main() {
 
+  group('FixtureGenerator - nested auto-generation', () {
+    test('auto-generates base factory for nested custom type', () async {
+      await testBuilder(
+        fixtureGeneratorBuilder(BuilderOptions.empty),
+        {
+          'a|lib/engine.dart': '''
+class Engine {
+  final int horsepower;
+  Engine({required this.horsepower});
+}
+''',
+          'a|lib/car.dart': '''
+import 'package:a/engine.dart';
+class Car {
+  final int id;
+  final Engine engine;
+  Car({required this.id, required this.engine});
+}
+''',
+          'a|test/fixtures.dart': '''
+import 'package:data_fixture_dart_annotations/data_fixture_dart_annotations.dart';
+import 'package:a/car.dart';
+
+@FixtureFor(Car)
+void fixtures() {}
+''',
+        },
+        readerWriter: await _makeReader(),
+        outputs: {
+          'a|test/fixtures.fixture.dart': decodedMatches(allOf(
+            contains('_\$CarFixtureFactory extends FixtureFactory<Car>'),
+            contains('engine: EngineFixture.factory().makeSingle()'),
+            contains('_\$EngineFixtureFactory extends FixtureFactory<Engine>'),
+            contains('extension EngineFixture on Engine'),
+          )),
+        },
+      );
+    });
+
+    test('auto-generates base factory for List<CustomType> element', () async {
+      await testBuilder(
+        fixtureGeneratorBuilder(BuilderOptions.empty),
+        {
+          'a|lib/wheel.dart': '''
+class Wheel {
+  final String brand;
+  Wheel({required this.brand});
+}
+''',
+          'a|lib/car.dart': '''
+import 'package:a/wheel.dart';
+class Car {
+  final int id;
+  final List<Wheel> wheels;
+  Car({required this.id, required this.wheels});
+}
+''',
+          'a|test/fixtures.dart': '''
+import 'package:data_fixture_dart_annotations/data_fixture_dart_annotations.dart';
+import 'package:a/car.dart';
+
+@FixtureFor(Car)
+void fixtures() {}
+''',
+        },
+        readerWriter: await _makeReader(),
+        outputs: {
+          'a|test/fixtures.fixture.dart': decodedMatches(allOf(
+            contains('_\$CarFixtureFactory extends FixtureFactory<Car>'),
+            contains('_\$WheelFixtureFactory extends FixtureFactory<Wheel>'),
+            contains('extension WheelFixture on Wheel'),
+          )),
+        },
+      );
+    });
+
+    test('hasJson propagates to nested type with toJson()', () async {
+      await testBuilder(
+        fixtureGeneratorBuilder(BuilderOptions.empty),
+        {
+          'a|lib/engine.dart': '''
+class Engine {
+  final int horsepower;
+  Engine({required this.horsepower});
+  Map<String, dynamic> toJson() => {'horsepower': horsepower};
+}
+''',
+          'a|lib/car.dart': '''
+import 'package:a/engine.dart';
+class Car {
+  final int id;
+  final Engine engine;
+  Car({required this.id, required this.engine});
+  Map<String, dynamic> toJson() => {'id': id, 'engine': engine.toJson()};
+}
+''',
+          'a|test/fixtures.dart': '''
+import 'package:data_fixture_dart_annotations/data_fixture_dart_annotations.dart';
+import 'package:a/car.dart';
+
+@FixtureFor(Car, hasJson: true)
+void fixtures() {}
+''',
+        },
+        readerWriter: await _makeReader(),
+        outputs: {
+          'a|test/fixtures.fixture.dart': decodedMatches(allOf(
+            contains('_\$CarFixtureFactory extends JsonFixtureFactory<Car>'),
+            contains('_\$EngineFixtureFactory extends JsonFixtureFactory<Engine>'),
+            contains('engine.toJson()'),
+          )),
+        },
+      );
+    });
+
+    test('hasJson does not make nested JsonFixtureFactory when nested has no toJson()', () async {
+      await testBuilder(
+        fixtureGeneratorBuilder(BuilderOptions.empty),
+        {
+          'a|lib/engine.dart': '''
+class Engine {
+  final int horsepower;
+  Engine({required this.horsepower});
+}
+''',
+          'a|lib/car.dart': '''
+import 'package:a/engine.dart';
+class Car {
+  final int id;
+  final Engine engine;
+  Car({required this.id, required this.engine});
+  Map<String, dynamic> toJson() => {'id': id};
+}
+''',
+          'a|test/fixtures.dart': '''
+import 'package:data_fixture_dart_annotations/data_fixture_dart_annotations.dart';
+import 'package:a/car.dart';
+
+@FixtureFor(Car, hasJson: true)
+void fixtures() {}
+''',
+        },
+        readerWriter: await _makeReader(),
+        outputs: {
+          'a|test/fixtures.fixture.dart': decodedMatches(allOf(
+            contains('_\$CarFixtureFactory extends JsonFixtureFactory<Car>'),
+            contains('_\$EngineFixtureFactory extends FixtureFactory<Engine>'),
+          )),
+        },
+      );
+    });
+
+    test('explicit @FixtureFor for nested type wins over auto-gen', () async {
+      await testBuilder(
+        fixtureGeneratorBuilder(BuilderOptions.empty),
+        {
+          'a|lib/engine.dart': '''
+class Engine {
+  final int horsepower;
+  Engine({required this.horsepower});
+}
+''',
+          'a|lib/car.dart': '''
+import 'package:a/engine.dart';
+class Car {
+  final int id;
+  final Engine engine;
+  Car({required this.id, required this.engine});
+}
+''',
+          'a|test/fixtures.dart': '''
+import 'package:data_fixture_dart_annotations/data_fixture_dart_annotations.dart';
+import 'package:a/car.dart';
+import 'package:a/engine.dart';
+
+@FixtureFor(Car)
+@FixtureFor(Engine)
+void fixtures() {}
+''',
+        },
+        readerWriter: await _makeReader(),
+        outputs: {
+          'a|test/fixtures.fixture.dart': decodedMatches(
+            // Engine factory appears exactly once (from explicit @FixtureFor, not duplicated)
+            isNot(contains('class _\$EngineFixtureFactory extends FixtureFactory<Engine> {\n'
+                '  @override\n'
+                '  FixtureDefinition<Engine> definition()'
+                '\n'
+                'class _\$EngineFixtureFactory')),
+          ),
+        },
+      );
+    });
+
+    test('auto-gen recurses through multiple levels', () async {
+      await testBuilder(
+        fixtureGeneratorBuilder(BuilderOptions.empty),
+        {
+          'a|lib/spark_plug.dart': '''
+class SparkPlug {
+  final String brand;
+  SparkPlug({required this.brand});
+}
+''',
+          'a|lib/engine.dart': '''
+import 'package:a/spark_plug.dart';
+class Engine {
+  final int horsepower;
+  final SparkPlug plug;
+  Engine({required this.horsepower, required this.plug});
+}
+''',
+          'a|lib/car.dart': '''
+import 'package:a/engine.dart';
+class Car {
+  final int id;
+  final Engine engine;
+  Car({required this.id, required this.engine});
+}
+''',
+          'a|test/fixtures.dart': '''
+import 'package:data_fixture_dart_annotations/data_fixture_dart_annotations.dart';
+import 'package:a/car.dart';
+
+@FixtureFor(Car)
+void fixtures() {}
+''',
+        },
+        readerWriter: await _makeReader(),
+        outputs: {
+          'a|test/fixtures.fixture.dart': decodedMatches(allOf(
+            contains('_\$CarFixtureFactory'),
+            contains('_\$EngineFixtureFactory'),
+            contains('_\$SparkPlugFixtureFactory'),
+            contains('extension SparkPlugFixture on SparkPlug'),
+          )),
+        },
+      );
+    });
+  });
+
   group('FixtureGenerator', () {
     test('generates FixtureFactory for plain model', () async {
       await testBuilder(

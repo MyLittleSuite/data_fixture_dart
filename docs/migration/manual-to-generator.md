@@ -8,7 +8,8 @@ The generator produces the same `FixtureFactory` / `JsonFixtureFactory` boilerpl
 |---|---|
 | Standard model fields that map to `FakerType` | Complex builder logic (computed fields, conditional branching) |
 | Traits with literal overrides | Seeded `Faker` for reproducible tests |
-| Reducing boilerplate in large test suites | Nested factories with cross-model logic |
+| Nested models with standard fields (auto-discovered) | Nested factories with cross-model logic beyond `makeSingle()` |
+| Reducing boilerplate in large test suites | |
 
 ## Setup
 
@@ -157,6 +158,37 @@ All `@FixtureFor` annotations on a single function are generated together:
 @FixtureFor(Product, fields: {#price: FakerType.randomDouble})
 void fixtures() {}
 ```
+
+## Nested models
+
+Declare only the top-level model. The generator auto-discovers nested custom types and produces a base factory for each.
+
+**Before — hand-written nested factories:**
+
+```dart
+class _OwnerFixtureFactory extends FixtureFactory<Owner> {
+  @override
+  FixtureDefinition<Owner> definition() => define(
+        (faker, [int index = 0]) => Owner(
+          id: index,
+          name: faker.person.name(),
+          user: UserFixture.factory().makeSingle(),
+          dogs: DogFixture.factory().makeMany(3),
+        ),
+      );
+}
+```
+
+**After — one annotation, nested factories auto-generated:**
+
+```dart
+@FixtureFor(Owner)
+void fixtures() {}
+```
+
+The generator produces factory classes for `Owner`, `User`, and `Dog`. `List<Dog>` defaults to `[]` in the generated definition — override via a trait or manual factory if you need a populated list.
+
+If a nested type already has its own `@FixtureFor`, the explicit declaration takes precedence and no duplicate is generated.
 
 ## Running the generator
 

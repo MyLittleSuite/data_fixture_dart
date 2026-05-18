@@ -9,6 +9,8 @@ class ResolvedParam {
   final bool isNamed;
   final bool isList;
   final String? customTypeName; // non-null when type is an unknown class
+  final ClassElement? customClassElement; // non-null when customTypeName != null
+  final ClassElement? listElementClassElement; // non-null when isList && element type is custom class
 
   const ResolvedParam({
     required this.name,
@@ -17,6 +19,8 @@ class ResolvedParam {
     required this.isNamed,
     required this.isList,
     this.customTypeName,
+    this.customClassElement,
+    this.listElementClassElement,
   });
 }
 
@@ -54,17 +58,31 @@ class ConstructorResolver {
     final isNullable = type.nullabilitySuffix == NullabilitySuffix.question;
     final isList = type.isDartCoreList;
 
-    // Extract base type name
     String typeName;
     String? customType;
+    ClassElement? customClassEl;
+    ClassElement? listElementClassEl;
+
+    const knownTypes = {'int', 'double', 'String', 'bool', 'DateTime', 'List', 'Map'};
 
     if (type is InterfaceType) {
       typeName = type.element.name;
-      final knownTypes = {'int', 'double', 'String', 'bool', 'DateTime', 'List', 'Map'};
-      // Enums cannot have a FixtureFactory — leave customType null so the
-      // field resolver emits a TODO placeholder instead of makeSingle().
-      if (type.element is! EnumElement && !knownTypes.contains(typeName)) {
+      if (isList) {
+        // Extract element type for List<T> for nested auto-gen tracking
+        if (type.typeArguments.isNotEmpty) {
+          final elementType = type.typeArguments.first;
+          if (elementType is InterfaceType &&
+              elementType.element is ClassElement &&
+              elementType.element is! EnumElement &&
+              !knownTypes.contains(elementType.element.name)) {
+            listElementClassEl = elementType.element as ClassElement;
+          }
+        }
+      } else if (type.element is! EnumElement && !knownTypes.contains(typeName)) {
+        // Enums cannot have a FixtureFactory — leave customType null so the
+        // field resolver emits a TODO placeholder instead of makeSingle().
         customType = typeName;
+        customClassEl = type.element is ClassElement ? type.element as ClassElement : null;
       }
     } else {
       // ignore: deprecated_member_use
@@ -78,6 +96,8 @@ class ConstructorResolver {
       isNamed: p.isNamed,
       isList: isList,
       customTypeName: customType,
+      customClassElement: customClassEl,
+      listElementClassElement: listElementClassEl,
     );
   }
 }

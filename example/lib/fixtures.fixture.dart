@@ -9,6 +9,7 @@
 import 'package:data_fixture_dart/data_fixture_dart.dart';
 import 'package:example/models/dog.dart';
 import 'package:example/models/user.dart';
+import 'package:example/models/owner.dart';
 
 class _$DogFixtureFactory extends FixtureFactory<Dog> {
   @override
@@ -61,4 +62,20 @@ class _$UserFixtureFactory extends JsonFixtureFactory<User> {
 
 extension UserFixture on User {
   static _$UserFixtureFactory factory() => _$UserFixtureFactory();
+}
+
+class _$OwnerFixtureFactory extends FixtureFactory<Owner> {
+  @override
+  FixtureDefinition<Owner> definition() => define(
+        (faker, [int index = 0]) => Owner(
+          id: index,
+          name: faker.person.name(),
+          user: UserFixture.factory().makeSingle(),
+          dogs: [],
+        ),
+      );
+}
+
+extension OwnerFixture on Owner {
+  static _$OwnerFixtureFactory factory() => _$OwnerFixtureFactory();
 }
