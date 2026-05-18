@@ -1,0 +1,13 @@
+name: data_fixture_dart
+description: Creation of data model easily, with no headache.
+version: 4.0.0
+repository: https://github.com/MyLittleSuite/data_fixture_dart
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  faker: ^2.0.0
+
+dev_dependencies:
+  test: ^1.24.0

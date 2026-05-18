@@ -1,0 +1,16 @@
+enum FakerType {
+  personFirstName,
+  personLastName,
+  personName,
+  internetEmail,
+  internetUrl,
+  dateDateTime,
+  loremWord,
+  loremSentence,
+  randomInt,
+  randomDouble,
+  addressCity,
+  addressCountry,
+  phoneNumber,
+  companyName,
+}

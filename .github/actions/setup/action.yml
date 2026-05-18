@@ -1,14 +1,25 @@
-name: Setup Dart environment and get dependencies
-description: Installs Dart SDK 2.12.0 and runs `dart pub get` to fetch project dependencies
+name: Setup Dart environment
+description: Installs Dart SDK 3.7, activates Melos, and bootstraps the workspace
 
 runs:
   using: "composite"
   steps:
     - name: Install Dart
-      uses: dart-lang/setup-dart@v1.4
+      uses: dart-lang/setup-dart@v1
       with:
-        sdk: 2.14.0
+        sdk: "3.7"
 
-    - name: Get dependencies
+    - name: Cache pub dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.pub-cache
+        key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: ${{ runner.os }}-pub-
+
+    - name: Activate Melos
       shell: bash
-      run: dart pub get
+      run: dart pub global activate melos
+
+    - name: Bootstrap workspace
+      shell: bash
+      run: melos bootstrap

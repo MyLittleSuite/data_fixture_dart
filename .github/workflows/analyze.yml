@@ -8,8 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
-      - name: Setup Dart
+        uses: actions/checkout@v4
+      - name: Setup
         uses: ./.github/actions/setup
       - name: Analyze
-        run: dart analyze
+        run: melos run analyze

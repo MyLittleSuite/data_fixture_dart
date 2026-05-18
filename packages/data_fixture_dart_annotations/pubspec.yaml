@@ -1,0 +1,7 @@
+name: data_fixture_dart_annotations
+description: Annotations for data_fixture_dart code generation.
+version: 1.0.0
+repository: https://github.com/MyLittleSuite/data_fixture_dart
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"

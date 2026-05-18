@@ -1,0 +1,39 @@
+name: data_fixture_dart_workspace
+
+packages:
+  - packages/*
+  - example
+
+command:
+  bootstrap:
+    usePubspecOverrides: true
+
+scripts:
+  analyze:
+    run: dart analyze
+    exec:
+      concurrency: 5
+    description: Run dart analyze in all packages
+
+  test:
+    run: dart test
+    exec:
+      concurrency: 1
+      failFast: true
+    packageFilters:
+      dirExists: test
+    description: Run dart test in packages that have tests
+
+  build:
+    run: dart run build_runner build --delete-conflicting-outputs
+    exec:
+      concurrency: 1
+    packageFilters:
+      scope: example
+    description: Run build_runner in example
+
+  format:
+    run: dart format --set-exit-if-changed .
+    exec:
+      concurrency: 5
+    description: Check dart formatting in all packages
