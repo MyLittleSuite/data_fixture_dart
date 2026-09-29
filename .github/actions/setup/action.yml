@@ -7,7 +7,7 @@ runs:
     - name: Install Dart
       uses: dart-lang/setup-dart@v1.4
       with:
-        sdk: 2.14.0
+        sdk: 3.13.5
 
     - name: Get dependencies
       shell: bash
